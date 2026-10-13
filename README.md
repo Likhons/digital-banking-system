@@ -6,9 +6,9 @@ A full-stack digital banking app: users open an account, deposit, withdraw, tran
 
 | | URL |
 |---|---|
-| Frontend | `https://YOUR-FRONTEND.vercel.app` <!-- TODO: add link --> |
-| Backend API | `https://YOUR-BACKEND.onrender.com` <!-- TODO: add link --> |
-| Health check | `https://YOUR-BACKEND.onrender.com/health` |
+| Frontend | https://digital-banking-system-three.vercel.app |
+| Backend API | https://digibank-api-8spy.onrender.com |
+| Health check | https://digibank-api-8spy.onrender.com/health |
 
 > The backend runs on Render's free plan, so the first request after a period of inactivity can take 30–60 seconds while the server wakes up.
 
