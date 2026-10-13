@@ -9,19 +9,20 @@ const profileRoutes = require('./routes/profileRoutes');
 
 const app = express();
 
-// Vercel-এর মতো proxy-র পেছনে থাকলে আসল client IP পাওয়ার জন্য (rate limiter এটা ব্যবহার করে)
+// Render-এর মতো proxy-র পেছনে থাকলে আসল client IP পাওয়ার জন্য (rate limiter এটা ব্যবহার করে)
 app.set('trust proxy', 1);
 
-// CORS_ORIGIN সেট থাকলে শুধু ওই frontend URL গুলো থেকে request নেওয়া হবে
-const allowedOrigins = process.env.CORS_ORIGIN
-  ? process.env.CORS_ORIGIN.split(',').map((origin) => origin.trim())
+// FRONTEND_URL সেট থাকলে শুধু ওই URL (কমা দিয়ে একাধিক) থেকে request নেওয়া হবে
+const allowedOrigins = process.env.FRONTEND_URL
+  ? process.env.FRONTEND_URL.split(',').map((origin) => origin.trim().replace(/\/$/, ''))
   : true;
 app.use(cors({ origin: allowedOrigins }));
 app.use(express.json());
 
-// Deploy ঠিক আছে কি না দেখার জন্য
-app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'OK', message: 'DigiBank API is running' });
+// UptimeRobot ping-এর জন্য। ইচ্ছা করে DB-তে query করে না,
+// নাহলে প্রতি ping-এ Neon জেগে থাকবে আর free compute hours শেষ হয়ে যাবে
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK', uptime: Math.round(process.uptime()) });
 });
 
 // Routes

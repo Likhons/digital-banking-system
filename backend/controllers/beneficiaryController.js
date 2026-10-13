@@ -49,6 +49,10 @@ const addBeneficiary = async (req, res) => {
     });
 
   } catch (error) {
+    // একই সময়ে দুইবার add করলে UNIQUE (user_id, account_number) constraint ধরবে
+    if (error.code === '23505') {
+      return res.status(409).json({ status: 'ERROR', message: 'Beneficiary already saved' });
+    }
     console.error(error);
     res.status(500).json({ status: 'ERROR', message: 'Failed to add beneficiary' });
   }

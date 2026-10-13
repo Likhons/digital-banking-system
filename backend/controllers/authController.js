@@ -55,18 +55,18 @@ const register = async (req, res) => {
 
     // ৯. ইউজার ও ব্যাংক অ্যাকাউন্ট একই DB transaction-এ তৈরি করা,
     //    যাতে অ্যাকাউন্ট তৈরি ফেইল করলে অ্যাকাউন্ট-ছাড়া ইউজার থেকে না যায়
-    const connection = await pool.getConnection();
+    const client = await pool.connect();
     let userId;
     try {
-      await connection.beginTransaction();
-      userId = await createUser(cleanName, cleanEmail, hashedPassword, cleanPhone, connection);
-      await createAccount(userId, connection);
-      await connection.commit();
+      await client.query('BEGIN');
+      userId = await createUser(cleanName, cleanEmail, hashedPassword, cleanPhone, client);
+      await createAccount(userId, client);
+      await client.query('COMMIT');
     } catch (error) {
-      await connection.rollback();
+      await client.query('ROLLBACK');
       throw error;
     } finally {
-      connection.release();
+      client.release();
     }
 
     res.status(201).json({
@@ -76,7 +76,7 @@ const register = async (req, res) => {
     });
   } catch (error) {
     // একই ইমেইলে একসাথে দুইটা রিকোয়েস্ট এলে UNIQUE constraint ধরবে
-    if (error.code === 'ER_DUP_ENTRY' && error.message.includes('email')) {
+    if (error.code === '23505' && error.constraint === 'users_email_key') {
       return res.status(400).json({ status: 'ERROR', message: 'User already exists with this email' });
     }
     console.error(error);
@@ -126,8 +126,8 @@ const login = async (req, res) => {
 
 const getMe = async (req, res) => {
   try {
-    const [rows] = await pool.query(
-      'SELECT id, name, email, phone, created_at FROM users WHERE id = ?',
+    const { rows } = await pool.query(
+      'SELECT id, name, email, phone, created_at FROM users WHERE id = $1',
       [req.user.id]
     );
 

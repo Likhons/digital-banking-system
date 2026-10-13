@@ -1,13 +1,13 @@
 const pool = require('../config/db');
 
 const depositMoney = async (userId, amount) => {
-  const connection = await pool.getConnection();
+  const client = await pool.connect();
 
   try {
-    await connection.beginTransaction();
+    await client.query('BEGIN');
 
-    const [accounts] = await connection.query(
-      'SELECT id, balance, status FROM accounts WHERE user_id = ? FOR UPDATE',
+    const { rows: accounts } = await client.query(
+      'SELECT id, balance, status FROM accounts WHERE user_id = $1 FOR UPDATE',
       [userId]
     );
 
@@ -21,37 +21,35 @@ const depositMoney = async (userId, amount) => {
       throw new Error('ACCOUNT_NOT_ACTIVE');
     }
 
-    await connection.query(
-      'UPDATE accounts SET balance = balance + ? WHERE id = ?',
+    const { rows: updated } = await client.query(
+      'UPDATE accounts SET balance = balance + $1 WHERE id = $2 RETURNING balance',
       [amount, account.id]
     );
 
-    await connection.query(
-      'INSERT INTO transactions (account_id, type, amount, reference, status) VALUES (?, ?, ?, ?, ?)',
+    await client.query(
+      'INSERT INTO transactions (account_id, type, amount, reference, status) VALUES ($1, $2, $3, $4, $5)',
       [account.id, 'deposit', amount, 'Cash deposit', 'success']
     );
 
-    await connection.commit();
-
-    const [updated] = await connection.query('SELECT balance FROM accounts WHERE id = ?', [account.id]);
+    await client.query('COMMIT');
     return updated[0].balance;
 
   } catch (error) {
-    await connection.rollback();
+    await client.query('ROLLBACK');
     throw error;
   } finally {
-    connection.release();
+    client.release();
   }
 };
 
 const withdrawMoney = async (userId, amount) => {
-  const connection = await pool.getConnection();
+  const client = await pool.connect();
 
   try {
-    await connection.beginTransaction();
+    await client.query('BEGIN');
 
-    const [accounts] = await connection.query(
-      'SELECT id, balance, status FROM accounts WHERE user_id = ? FOR UPDATE',
+    const { rows: accounts } = await client.query(
+      'SELECT id, balance, status FROM accounts WHERE user_id = $1 FOR UPDATE',
       [userId]
     );
 
@@ -69,45 +67,43 @@ const withdrawMoney = async (userId, amount) => {
       throw new Error('INSUFFICIENT_BALANCE');
     }
 
-    await connection.query(
-      'UPDATE accounts SET balance = balance - ? WHERE id = ?',
+    const { rows: updated } = await client.query(
+      'UPDATE accounts SET balance = balance - $1 WHERE id = $2 RETURNING balance',
       [amount, account.id]
     );
 
-    await connection.query(
-      'INSERT INTO transactions (account_id, type, amount, reference, status) VALUES (?, ?, ?, ?, ?)',
+    await client.query(
+      'INSERT INTO transactions (account_id, type, amount, reference, status) VALUES ($1, $2, $3, $4, $5)',
       [account.id, 'withdrawal', amount, 'Cash withdrawal', 'success']
     );
 
-    await connection.commit();
-
-    const [updated] = await connection.query('SELECT balance FROM accounts WHERE id = ?', [account.id]);
+    await client.query('COMMIT');
     return updated[0].balance;
 
   } catch (error) {
-    await connection.rollback();
+    await client.query('ROLLBACK');
     throw error;
   } finally {
-    connection.release();
+    client.release();
   }
 };
 
 const transferMoney = async (userId, receiverAccountNumber, amount) => {
-  const connection = await pool.getConnection();
+  const client = await pool.connect();
 
   try {
-    await connection.beginTransaction();
+    await client.query('BEGIN');
 
-    const [senderRows] = await connection.query(
-      'SELECT id, account_number FROM accounts WHERE user_id = ?',
+    const { rows: senderRows } = await client.query(
+      'SELECT id, account_number FROM accounts WHERE user_id = $1',
       [userId]
     );
     if (senderRows.length === 0) {
       throw new Error('ACCOUNT_NOT_FOUND');
     }
 
-    const [receiverRows] = await connection.query(
-      'SELECT id, account_number FROM accounts WHERE account_number = ?',
+    const { rows: receiverRows } = await client.query(
+      'SELECT id, account_number FROM accounts WHERE account_number = $1',
       [receiverAccountNumber]
     );
     if (receiverRows.length === 0) {
@@ -121,8 +117,8 @@ const transferMoney = async (userId, receiverAccountNumber, amount) => {
       throw new Error('SAME_ACCOUNT');
     }
 
-    const [lockedRows] = await connection.query(
-      'SELECT id, balance, status FROM accounts WHERE id IN (?, ?) ORDER BY id FOR UPDATE',
+    const { rows: lockedRows } = await client.query(
+      'SELECT id, balance, status FROM accounts WHERE id IN ($1, $2) ORDER BY id FOR UPDATE',
       [sender.id, receiver.id]
     );
     const lockedSender = lockedRows.find((row) => row.id === sender.id);
@@ -138,28 +134,29 @@ const transferMoney = async (userId, receiverAccountNumber, amount) => {
       throw new Error('INSUFFICIENT_BALANCE');
     }
 
-    await connection.query('UPDATE accounts SET balance = balance - ? WHERE id = ?', [amount, sender.id]);
-    await connection.query('UPDATE accounts SET balance = balance + ? WHERE id = ?', [amount, receiver.id]);
+    const { rows: updated } = await client.query(
+      'UPDATE accounts SET balance = balance - $1 WHERE id = $2 RETURNING balance',
+      [amount, sender.id]
+    );
+    await client.query('UPDATE accounts SET balance = balance + $1 WHERE id = $2', [amount, receiver.id]);
 
-    await connection.query(
-      'INSERT INTO transactions (account_id, type, amount, reference, status) VALUES (?, ?, ?, ?, ?)',
+    await client.query(
+      'INSERT INTO transactions (account_id, type, amount, reference, status) VALUES ($1, $2, $3, $4, $5)',
       [sender.id, 'transfer_out', amount, `Transfer to ${receiver.account_number}`, 'success']
     );
-    await connection.query(
-      'INSERT INTO transactions (account_id, type, amount, reference, status) VALUES (?, ?, ?, ?, ?)',
+    await client.query(
+      'INSERT INTO transactions (account_id, type, amount, reference, status) VALUES ($1, $2, $3, $4, $5)',
       [receiver.id, 'transfer_in', amount, `Transfer from ${sender.account_number}`, 'success']
     );
 
-    await connection.commit();
-
-    const [updated] = await connection.query('SELECT balance FROM accounts WHERE id = ?', [sender.id]);
+    await client.query('COMMIT');
     return updated[0].balance;
 
   } catch (error) {
-    await connection.rollback();
+    await client.query('ROLLBACK');
     throw error;
   } finally {
-    connection.release();
+    client.release();
   }
 };
 
@@ -167,21 +164,22 @@ const getTransactionsByUserId = async (userId, limit, offset) => {
   const numLimit = Number(limit);
   const numOffset = Number(offset);
 
-  const [rows] = await pool.query(
+  const { rows } = await pool.query(
     `SELECT t.id, t.type, t.amount, t.reference, t.status, t.created_at
      FROM transactions t
      JOIN accounts a ON t.account_id = a.id
-     WHERE a.user_id = ?
+     WHERE a.user_id = $1
      ORDER BY t.created_at DESC, t.id DESC
-     LIMIT ? OFFSET ?`,
+     LIMIT $2 OFFSET $3`,
     [userId, numLimit, numOffset]
   );
 
-  const [countRows] = await pool.query(
-    `SELECT COUNT(*) AS total
+  // Postgres-এ COUNT(*) bigint (string) রিটার্ন করে, তাই int-এ cast করা হলো
+  const { rows: countRows } = await pool.query(
+    `SELECT COUNT(*)::int AS total
      FROM transactions t
      JOIN accounts a ON t.account_id = a.id
-     WHERE a.user_id = ?`,
+     WHERE a.user_id = $1`,
     [userId]
   );
 
