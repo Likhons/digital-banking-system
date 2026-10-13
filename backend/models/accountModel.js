@@ -1,9 +1,9 @@
 const pool = require('../config/db');
 const generateAccountNumber = require('../utils/generateAccountNumber');
 
-const createAccount = async (userId) => {
+const createAccount = async (userId, db = pool) => {
   const accountNumber = generateAccountNumber();
-  const [result] = await pool.query(
+  const [result] = await db.query(
     'INSERT INTO accounts (user_id, account_number, balance) VALUES (?, ?, ?)',
     [userId, accountNumber, 0.00]
   );

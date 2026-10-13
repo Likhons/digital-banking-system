@@ -56,6 +56,7 @@ const Transfer = () => {
         <input
           type="number"
           step="0.01"
+          min="0.01"
           name="amount"
           value={formData.amount}
           onChange={handleChange}

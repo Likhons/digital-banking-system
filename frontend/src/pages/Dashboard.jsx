@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
+import { useAuth } from '../context/AuthContext';
 import TransactionList from '../components/TransactionList';
 
 const Dashboard = () => {
+  const { user } = useAuth();
   const [account, setAccount] = useState(null);
   const [recent, setRecent] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -47,18 +49,13 @@ const Dashboard = () => {
 
   return (
     <div>
-      <h1 className="page-title">Welcome back, {account?.name}</h1>
+      <h1 className="page-title">Welcome back, {user?.name}</h1>
       <p className="page-subtitle">Here is a summary of your account</p>
 
-      <div className="account-card">
-        <div className="balance-label">Current Balance</div>
-        <div className="balance-amount">
-          ৳ {Number(account?.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-        </div>
-        <div className="account-meta">
-          <span>Account: <strong>{account?.account_number}</strong></span>
-          <span>Status: <strong className="status-badge">{account?.status}</strong></span>
-        </div>
+      <div className="balance-card">
+        <p>Current Balance</p>
+        <h2>৳ {Number(account?.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</h2>
+        <small>Account: <strong>{account?.account_number}</strong> · Status: <strong>{account?.status}</strong></small>
       </div>
 
       <div className="quick-actions">

@@ -5,8 +5,8 @@ const findUserByEmail = async (email) => {
   return rows[0];
 };
 
-const createUser = async (name, email, hashedPassword, phone) => {
-  const [result] = await pool.query(
+const createUser = async (name, email, hashedPassword, phone, db = pool) => {
+  const [result] = await db.query(
     'INSERT INTO users (name, email, password, phone) VALUES (?, ?, ?, ?)',
     [name, email, hashedPassword, phone || null]
   );

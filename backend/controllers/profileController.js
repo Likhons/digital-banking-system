@@ -25,6 +25,10 @@ const updateProfile = async (req, res) => {
       return res.status(400).json({ status: 'ERROR', message: 'Name is required' });
     }
 
+    if (name.trim().length > 100) {
+      return res.status(400).json({ status: 'ERROR', message: 'Name must be under 100 characters' });
+    }
+
     const cleanPhone = phone ? String(phone).trim() : null;
     if (cleanPhone && !/^\+?\d{7,15}$/.test(cleanPhone)) {
       return res.status(400).json({ status: 'ERROR', message: 'Phone must be 7 to 15 digits' });
@@ -47,7 +51,7 @@ const changePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
 
-    if (!currentPassword || !newPassword) {
+    if (typeof currentPassword !== 'string' || !currentPassword || !newPassword) {
       return res.status(400).json({ status: 'ERROR', message: 'Current and new password are required' });
     }
 

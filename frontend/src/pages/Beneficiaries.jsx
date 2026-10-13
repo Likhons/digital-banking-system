@@ -8,19 +8,22 @@ const Beneficiaries = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
-
-  const fetchBeneficiaries = async () => {
-    try {
-      const res = await api.get('/beneficiaries');
-      setBeneficiaries(res.data.beneficiaries);
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to load beneficiaries');
-    }
-  };
+  // add/delete এর পর এটা বাড়ালেই লিস্ট আবার fetch হবে
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
+    const fetchBeneficiaries = async () => {
+      try {
+        const res = await api.get('/beneficiaries');
+        setBeneficiaries(res.data.beneficiaries);
+      } catch (err) {
+        setError(err.response?.data?.message || 'Failed to load beneficiaries');
+      }
+    };
     fetchBeneficiaries();
-  }, []);
+  }, [reloadKey]);
+
+  const fetchBeneficiaries = () => setReloadKey((k) => k + 1);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
