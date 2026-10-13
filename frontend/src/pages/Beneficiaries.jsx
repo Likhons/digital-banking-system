@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Send, Trash2, UserPlus, Users } from 'lucide-react';
 import api from '../api/axios';
 
 const Beneficiaries = () => {
@@ -77,24 +78,30 @@ const Beneficiaries = () => {
         <input type="text" name="accountNumber" value={formData.accountNumber} onChange={handleChange} placeholder="e.g. ACC1234567890" required />
 
         <button type="submit" disabled={loading}>
-          {loading ? 'Saving...' : 'Add Beneficiary'}
+          <UserPlus size={18} /> {loading ? 'Saving...' : 'Add Beneficiary'}
         </button>
       </form>
 
       <h3 className="section-title">Saved Beneficiaries</h3>
       {beneficiaries.length === 0 ? (
-        <div className="panel empty-state">No beneficiaries saved yet</div>
+        <div className="panel empty-state">
+          <Users size={36} />
+          <p>No beneficiaries saved yet</p>
+        </div>
       ) : (
         <div className="ben-list">
           {beneficiaries.map((b) => (
             <div className="panel ben-item" key={b.id}>
-              <div>
-                <strong>{b.name}</strong>
-                <div className="ben-acc">{b.account_number}</div>
+              <div className="ben-person">
+                <div className="avatar">{b.name.charAt(0).toUpperCase()}</div>
+                <div>
+                  <strong>{b.name}</strong>
+                  <div className="ben-acc mono">{b.account_number}</div>
+                </div>
               </div>
               <div className="ben-actions">
-                <Link to={`/transfer?to=${b.account_number}`} className="ben-send">Send</Link>
-                <button className="ben-delete" onClick={() => handleDelete(b.id)}>Delete</button>
+                <Link to={`/transfer?to=${b.account_number}`} className="ben-send"><Send size={15} /> Send</Link>
+                <button className="ben-delete" onClick={() => handleDelete(b.id)} aria-label="Delete beneficiary"><Trash2 size={15} /></button>
               </div>
             </div>
           ))}

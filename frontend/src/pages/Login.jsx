@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import AuthLayout from '../components/AuthLayout';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -27,10 +28,10 @@ const Login = () => {
   };
 
   return (
-    <div className="auth-container">
+    <AuthLayout>
       <div className="auth-card">
-        <h2 className="auth-title">Welcome Back</h2>
-        <p className="auth-subtitle">Login to your account</p>
+        <h2 className="auth-title">Welcome back</h2>
+        <p className="auth-subtitle">Log in to manage your account</p>
 
         {error && <div className="error-banner">{error}</div>}
 
@@ -41,7 +42,7 @@ const Login = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
+              placeholder="you@example.com"
               required
             />
           </div>
@@ -63,10 +64,10 @@ const Login = () => {
         </form>
 
         <p className="auth-footer">
-          Don't have an account? <Link to="/register">Register</Link>
+          Don't have an account? <Link to="/register">Create one</Link>
         </p>
       </div>
-    </div>
+    </AuthLayout>
   );
 };
 

@@ -66,6 +66,14 @@ const Profile = () => {
       <h1 className="page-title">My Profile</h1>
       <p className="page-subtitle">Manage your personal details and password</p>
 
+      <div className="panel profile-header">
+        <div className="avatar xl">{profile.name?.charAt(0).toUpperCase()}</div>
+        <div>
+          <h3>{profile.name}</h3>
+          <span>{profile.email}</span>
+        </div>
+      </div>
+
       <form className="panel form-panel" onSubmit={handleProfileSubmit}>
         <h3>Personal Details</h3>
         {profileMsg.error && <div className="error-box">{profileMsg.error}</div>}

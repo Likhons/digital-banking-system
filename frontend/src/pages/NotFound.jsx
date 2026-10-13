@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom';
 
 const NotFound = () => (
-  <div className="auth-container">
-    <div className="auth-card" style={{ textAlign: 'center' }}>
-      <h2>404</h2>
+  <div className="notfound">
+    <div className="auth-card">
+      <h1 className="notfound-code">404</h1>
       <p className="auth-subtitle">This page does not exist</p>
-      <Link to="/dashboard" className="ben-send" style={{ marginTop: '1rem' }}>Back to Dashboard</Link>
+      <Link to="/dashboard" className="btn-primary">Back to Dashboard</Link>
     </div>
   </div>
 );

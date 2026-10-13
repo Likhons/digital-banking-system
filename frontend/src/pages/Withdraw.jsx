@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ArrowUpFromLine } from 'lucide-react';
 import api from '../api/axios';
 
 const Withdraw = () => {
@@ -26,8 +27,13 @@ const Withdraw = () => {
 
   return (
     <div>
-      <h1 className="page-title">Withdraw Money</h1>
-      <p className="page-subtitle">Take funds out of your account</p>
+      <div className="page-heading">
+        <span className="action-icon red lg"><ArrowUpFromLine size={24} /></span>
+        <div>
+          <h1 className="page-title">Withdraw Money</h1>
+          <p className="page-subtitle">Take funds out of your account</p>
+        </div>
+      </div>
 
       <form className="panel form-panel" onSubmit={handleSubmit}>
         {error && <div className="error-box">{error}</div>}

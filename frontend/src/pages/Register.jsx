@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
+import AuthLayout from '../components/AuthLayout';
 
 const Register = () => {
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', password: '' });
@@ -28,34 +29,44 @@ const Register = () => {
   };
 
   return (
-    <div className="auth-container">
-      <form className="auth-card" onSubmit={handleSubmit}>
-        <h2>Create Account</h2>
-        <p className="auth-subtitle">Open your digital bank account</p>
+    <AuthLayout>
+      <div className="auth-card">
+        <h2 className="auth-title">Create account</h2>
+        <p className="auth-subtitle">Open your digital bank account in a minute</p>
 
-        {error && <div className="error-box">{error}</div>}
+        {error && <div className="error-banner">{error}</div>}
 
-        <label>Full Name</label>
-        <input type="text" name="name" value={formData.name} onChange={handleChange} required />
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>Full Name</label>
+            <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Jane Doe" required />
+          </div>
 
-        <label>Email</label>
-        <input type="email" name="email" value={formData.email} onChange={handleChange} required />
+          <div className="form-group">
+            <label>Email</label>
+            <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="you@example.com" required />
+          </div>
 
-        <label>Phone</label>
-        <input type="text" name="phone" value={formData.phone} onChange={handleChange} />
+          <div className="form-group">
+            <label>Phone <span className="optional">(optional)</span></label>
+            <input type="text" name="phone" value={formData.phone} onChange={handleChange} placeholder="01XXXXXXXXX" />
+          </div>
 
-        <label>Password (min 6 characters)</label>
-        <input type="password" name="password" value={formData.password} onChange={handleChange} required />
+          <div className="form-group">
+            <label>Password</label>
+            <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="At least 6 characters" required />
+          </div>
 
-        <button type="submit" disabled={loading}>
-          {loading ? 'Creating account...' : 'Register'}
-        </button>
+          <button type="submit" className="btn-primary" disabled={loading}>
+            {loading ? 'Creating account...' : 'Create Account'}
+          </button>
+        </form>
 
         <p className="auth-footer">
           Already have an account? <Link to="/login">Login</Link>
         </p>
-      </form>
-    </div>
+      </div>
+    </AuthLayout>
   );
 };
 

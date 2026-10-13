@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { ArrowLeftRight } from 'lucide-react';
 import api from '../api/axios';
 
 const Transfer = () => {
@@ -35,8 +36,13 @@ const Transfer = () => {
 
   return (
     <div>
-      <h1 className="page-title">Transfer Money</h1>
-      <p className="page-subtitle">Send funds to another account</p>
+      <div className="page-heading">
+        <span className="action-icon blue lg"><ArrowLeftRight size={24} /></span>
+        <div>
+          <h1 className="page-title">Transfer Money</h1>
+          <p className="page-subtitle">Send funds to another account</p>
+        </div>
+      </div>
 
       <form className="panel form-panel" onSubmit={handleSubmit}>
         {error && <div className="error-box">{error}</div>}

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ArrowDownToLine, ArrowUpFromLine, ArrowLeftRight, Users } from 'lucide-react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import TransactionList from '../components/TransactionList';
@@ -49,25 +50,50 @@ const Dashboard = () => {
 
   return (
     <div>
-      <h1 className="page-title">Welcome back, {user?.name}</h1>
+      <h1 className="page-title">Welcome back, {user?.name?.split(' ')[0]} 👋</h1>
       <p className="page-subtitle">Here is a summary of your account</p>
 
       <div className="balance-card">
-        <p>Current Balance</p>
+        <div className="balance-card-top">
+          <span>Total Balance</span>
+          <span className="status-pill">{account?.status}</span>
+        </div>
         <h2>৳ {Number(account?.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</h2>
-        <small>Account: <strong>{account?.account_number}</strong> · Status: <strong>{account?.status}</strong></small>
+        <div className="balance-card-bottom">
+          <div>
+            <small>Account Number</small>
+            <strong className="mono">{account?.account_number}</strong>
+          </div>
+          <div>
+            <small>Type</small>
+            <strong>{account?.account_type}</strong>
+          </div>
+        </div>
       </div>
 
       <div className="quick-actions">
-        <Link to="/deposit" className="action-card">💵<span>Deposit</span></Link>
-        <Link to="/withdraw" className="action-card">💸<span>Withdraw</span></Link>
-        <Link to="/transfer" className="action-card">🔁<span>Transfer</span></Link>
-        <Link to="/transactions" className="action-card">📜<span>History</span></Link>
+        <Link to="/deposit" className="action-card">
+          <span className="action-icon green"><ArrowDownToLine size={20} /></span>
+          <span>Deposit</span>
+        </Link>
+        <Link to="/withdraw" className="action-card">
+          <span className="action-icon red"><ArrowUpFromLine size={20} /></span>
+          <span>Withdraw</span>
+        </Link>
+        <Link to="/transfer" className="action-card">
+          <span className="action-icon blue"><ArrowLeftRight size={20} /></span>
+          <span>Transfer</span>
+        </Link>
+        <Link to="/beneficiaries" className="action-card">
+          <span className="action-icon purple"><Users size={20} /></span>
+          <span>Beneficiaries</span>
+        </Link>
       </div>
 
-      <h2 style={{ fontSize: '1.2rem', marginBottom: '0.75rem', color: '#1e293b' }}>
-        Recent Transactions
-      </h2>
+      <div className="section-header">
+        <h3 className="section-title">Recent Transactions</h3>
+        <Link to="/transactions" className="link-btn">View all</Link>
+      </div>
       <TransactionList transactions={recent} />
     </div>
   );

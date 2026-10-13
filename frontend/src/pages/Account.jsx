@@ -36,8 +36,17 @@ const Account = () => {
       <p className="page-subtitle">Your account details</p>
 
       <div className="balance-card">
-        <p>Current Balance</p>
+        <div className="balance-card-top">
+          <span>Current Balance</span>
+          <span className="status-pill">{account.status}</span>
+        </div>
         <h2>৳ {Number(account.balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}</h2>
+        <div className="balance-card-bottom">
+          <div>
+            <small>Account Number</small>
+            <strong className="mono">{account.account_number}</strong>
+          </div>
+        </div>
       </div>
 
       <div className="panel detail-list">

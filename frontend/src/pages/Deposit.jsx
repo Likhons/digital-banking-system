@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ArrowDownToLine } from 'lucide-react';
 import api from '../api/axios';
 
 const Deposit = () => {
@@ -26,11 +27,16 @@ const Deposit = () => {
 
   return (
     <div>
-      <h1 className="page-title">Deposit Money</h1>
-      <p className="page-subtitle">Add funds to your account</p>
+      <div className="page-heading">
+        <span className="action-icon green lg"><ArrowDownToLine size={24} /></span>
+        <div>
+          <h1 className="page-title">Deposit Money</h1>
+          <p className="page-subtitle">Add funds to your account</p>
+        </div>
+      </div>
 
       <form className="panel form-panel" onSubmit={handleSubmit}>
-        {error && <div className="error-banner">{error}</div>}
+        {error && <div className="error-box">{error}</div>}
         {success && <div className="success-box">{success}</div>}
 
         <label>Amount (৳)</label>
