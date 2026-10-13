@@ -9,8 +9,20 @@ const profileRoutes = require('./routes/profileRoutes');
 
 const app = express();
 
-app.use(cors());
+// Vercel-এর মতো proxy-র পেছনে থাকলে আসল client IP পাওয়ার জন্য (rate limiter এটা ব্যবহার করে)
+app.set('trust proxy', 1);
+
+// CORS_ORIGIN সেট থাকলে শুধু ওই frontend URL গুলো থেকে request নেওয়া হবে
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',').map((origin) => origin.trim())
+  : true;
+app.use(cors({ origin: allowedOrigins }));
 app.use(express.json());
+
+// Deploy ঠিক আছে কি না দেখার জন্য
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'OK', message: 'DigiBank API is running' });
+});
 
 // Routes
 app.use('/api/auth', authRoutes);
